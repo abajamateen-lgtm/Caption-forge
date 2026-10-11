@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CaptionForge</title>
+<meta name="theme-color" content="#0d0f14">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Bebas+Neue&family=Luckiest+Guy&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css"></head><body>
+<div class="blobs"><i></i><i></i><i></i></div>
+<main id="gate" class="glass">
+  <div class="mark"><svg viewBox="0 0 24 24"><path d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H11l-4 3v-3a3 3 0 0 1-3-3z"/></svg></div>
+  <h1>Caption<b>Forge</b></h1><p>Auto-captions, silence cuts and exports for Shorts, Reels and TikToks. Free, no sign-up.</p>
+  <label class="drop" id="drop"><input type="file" id="file" accept="video/*" hidden><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span>Drop a video or click to browse</span></label>
+  <small class="lim">Up to 3 minutes · 150 MB · files are deleted after 30 min</small>
+</main>
+<section id="app">
+ <header class="glass top"><b class="brand">Caption<i>Forge</i></b><span class="sp"></span><kbd>Space</kbd> play <kbd>←→</kbd> seek <kbd>S</kbd> safe zones <kbd>Ctrl+Z</kbd> undo<button id="export" class="btn y">Export MP4</button></header>
+ <div class="work">
+  <div class="stagewrap"><div id="stage"><video id="v" playsinline></video><div id="safe"></div><div id="cap" title="Drag to move"></div></div></div>
+  <aside class="glass panel">
+   <nav class="tabs" id="tabs"><button data-t="cap" class="on">Captions</button><button data-t="sty">Style</button><button data-t="fmt">Format</button><button data-t="sil">Silence</button></nav>
+
+   <section class="tab on" id="t-cap">
+    <div class="row"><select id="model"><option>tiny</option><option selected>base</option><option>small</option></select><button id="gen" class="btn b">Auto-caption</button></div>
+    <label>Words per screen <output id="nO">3</output><input type="range" id="n" min="1" max="8" value="3"></label>
+    <div class="chips tools">
+      <button id="addcap" title="Add a caption at the playhead">+ At playhead</button>
+      <button id="undo">↶ Undo</button>
+      <button id="fill" title="Remove um / uh / erm">Remove fillers</button>
+      <button id="shm" title="Shift all captions 0.1s earlier">⏪ −0.1s</button>
+      <button id="shp" title="Shift all captions 0.1s later">+0.1s ⏩</button>
+      <button id="srt">.srt</button>
+    </div>
+    <div class="row fr"><input id="fi" placeholder="Find word"><input id="re" placeholder="Replace with"><button id="rep" class="btn b sm">Replace</button></div>
+    <div id="list"></div>
+   </section>
+
+   <section class="tab" id="t-sty">
+    <div class="chips" id="presets"></div>
+    <label>Font<select data-k="font"><option>Anton</option><option>Bangers</option><option>Bebas Neue</option><option>Luckiest Guy</option><option>Permanent Marker</option></select></label>
+    <label>Letter case<select data-k="case"><option value="upper">UPPERCASE</option><option value="lower">lowercase</option><option value="title">Title</option><option value="none">As typed</option></select></label>
+    <label class="sw">Bold<input type="checkbox" data-k="bold"><s></s></label>
+    <label class="sw">Highlight active word<input type="checkbox" data-k="hl"><s></s></label>
+    <label class="sw">Pop active word<input type="checkbox" data-k="pop"><s></s></label>
+    <label>Size <output></output><input type="range" data-k="size" min="3" max="12" step=".5"></label>
+    <label>Vertical position <output></output><input type="range" data-k="y" min="8" max="92" data-u="%"></label>
+    <label>Outline <output></output><input type="range" data-k="sw" min="0" max="16"></label>
+    <label>Shadow <output></output><input type="range" data-k="sh" min="0" max="10"></label>
+    <div class="cols"><label>Text<input type="color" data-k="color"></label><label>Active word<input type="color" data-k="hi"></label><label>Outline<input type="color" data-k="stroke"></label></div>
+    <div class="sw3"><button data-c="#FFFFFF">W</button><button data-c="#FFC400" style="--c:#FFC400">Y</button><button data-c="#E5322D" style="--c:#E5322D">R</button><button data-c="#2563EB" style="--c:#2563EB">B</button><button data-c="#000000" style="--c:#000">K</button></div>
+    <label class="sw">Background box<input type="checkbox" data-k="box"><s></s></label>
+    <div class="cols"><label>Box colour<input type="color" data-k="boxc"></label><label>Box opacity <output></output><input type="range" data-k="boxa" min="10" max="100" data-u="%"></label></div>
+    <small>Tip: you can also drag the caption up or down right in the preview.</small>
+   </section>
+
+   <section class="tab" id="t-fmt">
+    <div class="chips" id="ratios"></div>
+    <div class="seg" id="fit"><button data-f="fill" class="on">Fill (crop)</button><button data-f="blur">Fit + blur bars</button></div>
+    <label class="sw">Safe-zone overlay<input type="checkbox" id="safeT"><s></s></label>
+   </section>
+
+   <section class="tab" id="t-sil">
+    <label>Threshold <output id="dbO">-30 dB</output><input type="range" id="db" min="-60" max="-15" value="-30"></label>
+    <label>Min length <output id="mnO">0.4 s</output><input type="range" id="mn" min="2" max="20" value="4"></label>
+    <button id="sil" class="btn b">Detect silences</button>
+    <label class="sw">Remove silences<input type="checkbox" id="cutT" checked><s></s></label>
+    <small id="silInfo">Click a red block on the timeline to keep or remove it.</small>
+   </section>
+  </aside>
+ </div>
+
+ <div class="glass tl" id="tl">
+  <div class="tlbar">
+   <button id="play" class="btn ic"><svg viewBox="0 0 24 24"><path id="pp" d="M7 5v14l12-7z"/></svg></button>
+   <span id="tc">0:00</span><small id="tdur"></small>
+   <span class="sp"></span>
+   <label class="zoom">Zoom <input type="range" id="zoom" min="1" max="10" step=".5" value="1"></label>
+   <button id="tlmin" class="btn ic2" title="Collapse timeline for a bigger preview">▾</button>
+  </div>
+  <div class="tlbody">
+   <div class="labels"><span></span><span>Video</span><span>Audio</span><span>Captions</span></div>
+   <div class="scroll" id="tscroll"><div class="inner" id="tin">
+     <div class="ruler" id="ruler"></div>
+     <div class="trk" id="tV"></div>
+     <div class="trk" id="tA"><canvas id="wave"></canvas><div id="tAc"></div></div>
+     <div class="trk" id="tC"></div>
+     <div id="head"></div>
+   </div></div>
+  </div>
+ </div>
+</section>
+<div id="toast"></div><script src="/static/app.js"></script></body></html>
