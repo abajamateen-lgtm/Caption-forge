@@ -1,4 +1,4 @@
-import os, re, json, uuid, subprocess, time, threading
+import os, re, json, uuid, subprocess, time
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 
@@ -67,16 +67,6 @@ def upload():
     return jsonify(id=fid, w=v.get("width", 0), h=v.get("height", 0), dur=dur,
                    audio=any(s["codec_type"] == "audio" for s in st))
 
-def get_model(m):
-    from faster_whisper import WhisperModel
-    if m not in _model: _model[m] = WhisperModel(m, compute_type="int8", cpu_threads=os.cpu_count() or 2)
-    return _model[m]
-
-def _preload():
-    try: get_model("base")
-    except Exception: pass
-threading.Thread(target=_preload, daemon=True).start()
-
 @app.post("/api/transcribe")
 def transcribe():
     try: from faster_whisper import WhisperModel
@@ -85,8 +75,8 @@ def transcribe():
     if m not in MODELS: m = "base"
     if not os.path.isfile(P(d["id"])): return jsonify(error=GONE), 410
     touch(d["id"])
-    segs, _ = get_model(m).transcribe(P(d["id"]), word_timestamps=True, vad_filter=True,
-                                      beam_size=1, condition_on_previous_text=False)
+    if m not in _model: _model[m] = WhisperModel(m, compute_type="int8")
+    segs, _ = _model[m].transcribe(P(d["id"]), word_timestamps=True, vad_filter=True)
     words = [{"t": w.word.strip(), "s": round(w.start, 2), "e": round(w.end, 2)} for s in segs for w in s.words if w.word.strip()]
     return jsonify(words=words)
 
@@ -189,7 +179,6 @@ def export():
     ks = keep(cuts, dur); n = len(ks)
     base = uuid.uuid4().hex[:8]; assn, outn = base + ".ass", "out_" + base + ".mp4"
     open(P(assn), "w", encoding="utf-8").write(make_ass(d["groups"], d["style"], W, H, remap(cuts)))
-    hd = bool(d.get("hd"))
     f = []
     for i, (s, e) in enumerate(ks):
         f.append("[0:v]trim=%.3f:%.3f,setpts=PTS-STARTPTS[v%d]" % (s, e, i))
@@ -203,7 +192,7 @@ def export():
                  "[g]scale=%d:%d:force_original_aspect_ratio=decrease[ff];[bb][ff]overlay=(W-w)/2:(H-h)/2,setsar=1[vf]" % (W, H, W, H, W, H))
     f.append("[vf]ass=%s[vo]" % assn)
     cmd = ["ffmpeg", "-y", "-i", os.path.basename(d["id"]), "-filter_complex", ";".join(f), "-map", "[vo]"] + \
-          (["-map", "[ac]"] if hasA else []) + ["-c:v", "libx264", "-preset", "veryfast" if hd else "superfast", "-crf", "20" if hd else "23", "-pix_fmt", "yuv420p",
+          (["-map", "[ac]"] if hasA else []) + ["-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p",
            "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", outn]
     r = run(cmd, cwd=UP)
 
