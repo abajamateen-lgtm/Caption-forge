@@ -34,6 +34,9 @@ def cleanup_old_files():
 @app.get("/")
 def index(): return send_from_directory(os.path.join(BASE, "templates"), "index.html")
 
+@app.get("/motion")
+def motion(): return send_from_directory(os.path.join(BASE, "templates"), "motion.html")
+
 @app.get("/media/<name>")
 def media(name):
     if not os.path.isfile(P(name)): return jsonify(error=GONE), 404
@@ -48,11 +51,21 @@ def upload():
     path = P(fid)
     f.save(path)
 
-    r = run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,width,height:format=duration", "-of", "json", path])
-    try: j = json.loads(r.stdout or "{}")
-    except ValueError: j = {}
-    try: dur = float(j.get("format", {}).get("duration", 0))
-    except (TypeError, ValueError): dur = 0
+    def probe():
+        r = run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,width,height:format=duration", "-of", "json", path])
+        try: j = json.loads(r.stdout or "{}")
+        except ValueError: j = {}
+        try: d = float(j.get("format", {}).get("duration", 0))
+        except (TypeError, ValueError): d = 0
+        return j, d
+    j, dur = probe()
+    # Browser-recorded WebM (Motion Studio export) has no duration or seek index. A stream-copy remux adds both.
+    if dur <= 0 and path.endswith((".webm", ".mkv")):
+        fixed = path + ".fix.webm"
+        run(["ffmpeg", "-y", "-i", path, "-c", "copy", fixed])
+        if os.path.isfile(fixed) and os.path.getsize(fixed) > 0:
+            os.replace(fixed, path); j, dur = probe()
+        elif os.path.isfile(fixed): os.remove(fixed)
 
     if dur <= 0:
         os.remove(path)
