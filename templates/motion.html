@@ -1,0 +1,104 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Motion Studio | CaptionForge</title>
+<meta name="theme-color" content="#0d0f14">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=Anton&family=Bangers&family=Bebas+Neue&family=Luckiest+Guy&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/motion.css"></head>
+<body class="motion">
+<div class="blobs"><i></i><i></i><i></i></div>
+<section id="app" class="in">
+ <header class="glass top">
+  <b class="brand">Caption<i>Forge</i></b>
+  <nav class="mnav"><a href="/" data-ic="captions">Captions</a><a href="/motion" class="on" data-ic="clapperboard">Motion</a></nav>
+  <span class="sp"></span><span id="st"></span>
+  <button id="imp" class="btn gl" data-ic="folder-open" title="Import project, scene or JSON"><span class="lb">Import</span></button>
+  <button id="save" class="btn gl" data-ic="save" title="Download project JSON"><span class="lb">Save</span></button>
+  <button id="png" class="btn gl" data-ic="image" title="Download current frame"><span class="lb">PNG</span></button>
+  <button id="exp" class="btn y" data-ic="film"><span class="lb">Export WebM</span></button>
+  <button id="tocap" class="btn b" data-ic="captions" title="Export, then open the video in the caption editor"><span class="lb">Add captions</span></button>
+ </header>
+
+ <div class="work">
+  <div class="stagewrap"><div id="stage"><canvas id="cv" width="1280" height="720"></canvas></div></div>
+  <aside class="glass panel">
+   <nav class="tabs" id="tabs"><button data-t="scene" class="on">Scene</button><button data-t="proj">Project</button><button data-t="lib">Library</button><button data-t="code">Code</button></nav>
+
+   <section class="tab on" id="t-scene">
+    <div class="shead"><b>Scene <span id="sn"></span></b></div>
+    <label>Type<select id="ft"></select></label>
+    <label>Seconds<input type="number" id="fd" min="1" max="60" step="0.5"></label>
+    <label data-f="x"><span class="lt">Text</span> <small>(wrap *word* to color it)</small><input id="fx"></label>
+    <label data-f="e"><span class="lt">Emoji</span><input id="fe"></label>
+    <label data-f="n"><span class="lt">Number</span><input id="fn"></label>
+    <label data-f="l"><span class="lt">Lines</span><textarea id="fl" rows="4"></textarea></label>
+    <div data-f="img" class="btns"><button id="imgb" class="btn gl" data-ic="image" style="margin:0"><span class="lb">Choose image</span></button><button id="imgc" class="btn gl" data-ic="trash-2" style="margin:0"><span class="lb">Remove</span></button><input type="file" id="imgf" accept="image/*" hidden></div>
+    <div data-f="ic" class="icf"><div class="lt2">Icons <small>(rows use them in order)</small></div><div id="icchips" class="chips"></div><button id="icpick" class="btn g sm" data-ic="search"><span class="lb">Pick icons</span></button></div>
+    <div data-f="js" class="icf"><small>This scene is drawn by your own JavaScript.</small><button id="gocode" class="btn g sm" data-ic="code"><span class="lb">Edit code</span></button></div>
+    <div class="row"><label class="inl"><input type="checkbox" id="fbo"> Custom background</label><input type="color" id="fb"></div>
+   </section>
+
+   <section class="tab" id="t-proj">
+    <label>Brand name<input id="pb"></label>
+    <div><div class="lt2">Brand icon</div><div class="row"><span id="logochip" class="chip"></span><button id="logopick" class="btn gl sm" style="margin:0" data-ic="search"><span class="lb">Change</span></button></div></div>
+    <div><div class="lt2">Format</div><div class="chips" id="ratios"></div></div>
+    <div class="seg" id="qual"><button data-q="720" class="on">720p class</button><button data-q="1080">1080p class</button></div>
+    <div><div class="lt2">Palette</div><div class="pals" id="pals"></div></div>
+    <div class="cols"><label>Background<input type="color" id="pbg"></label><label>Accent 1<input type="color" id="c0"></label><label>Accent 2<input type="color" id="c1"></label><label>Accent 3<input type="color" id="c2"></label></div>
+    <label>Font<select id="pfont"></select></label>
+    <div class="cols"><label>Backdrop<select id="pbgs"><option value="solid">Solid</option><option value="glow">Soft glow</option><option value="gradient">Gradient</option><option value="dots">Dots</option><option value="grid">Grid</option></select></label>
+     <label>Transition<select id="ptr"><option value="fade">Fade</option><option value="slide">Slide</option><option value="zoom">Zoom</option><option value="cut">Hard cut</option></select></label></div>
+    <label>Text animation<select id="panim"><option value="rise">Rise</option><option value="pop">Pop</option><option value="drop">Drop</option><option value="fade">Fade only</option></select></label>
+    <div><div class="lt2">Icon style</div><div class="chips" id="istyles"></div></div>
+    <label>Icon weight <output id="iwO">2</output><input type="range" id="iw" min="1" max="3" step=".25"></label>
+    <label class="sw">Karaoke captions<input type="checkbox" id="capOn"><s></s></label>
+    <label>Caption script<textarea id="cap" rows="3" placeholder="Words appear karaoke-style across the whole video"></textarea></label>
+    <div><div class="lt2">Music <small>(mixed into the WebM export)</small></div>
+     <div class="row"><button id="musb" class="btn gl sm" style="margin:0" data-ic="music"><span class="lb">Choose audio</span></button><button id="musc" class="btn gl sm" style="margin:0" data-ic="x" hidden><span class="lb">Remove</span></button><input type="file" id="musf" accept="audio/*" hidden></div>
+     <small id="musn"></small>
+     <label>Volume <output id="volO">80%</output><input type="range" id="vol" min="0" max="1" step=".05"></label></div>
+    <small>Your work autosaves in this browser. Export records the canvas in real time (Chrome or Edge, keep the tab visible).</small>
+   </section>
+
+   <section class="tab" id="t-lib">
+    <div class="row"><button id="mytplb" class="btn gl sm" style="margin:0" data-ic="bookmark"><span class="lb">Save this scene as template</span></button></div>
+    <div id="lib"></div>
+   </section>
+
+   <section class="tab" id="t-code">
+    <div class="codehelp">
+     <b>Custom scene API</b>
+     <small>Paste a <code>draw(ctx, t, d, e, api)</code> function or just its body. <code>t</code> is seconds into the scene, <code>d</code> its length, <code>e</code> the fade in/out (0 to 1). <code>api</code> gives you <code>W H U colors ink muted text lines rich icon iconTile emoji rand smooth easeOut easeBack env rgba font ICONS</code>. Multiply sizes by <code>U</code> so they scale across formats.</small>
+    </div>
+    <div class="row"><select id="snip"></select><button id="snipb" class="btn gl sm" style="margin:0"><span class="lb">Insert</span></button></div>
+    <div id="codeconv" class="icf" hidden><small>The selected scene is not a custom scene yet.</small><button id="codemk" class="btn g sm" data-ic="wand-sparkles"><span class="lb">Make it a custom scene</span></button></div>
+    <textarea id="code" spellcheck="false" placeholder="// pick a snippet or paste your code"></textarea>
+    <div id="cerr" class="cerr" hidden></div>
+    <div class="row"><button id="codecp" class="btn gl sm" style="margin:0" data-ic="copy"><span class="lb">Copy</span></button><button id="codepa" class="btn gl sm" style="margin:0" data-ic="clipboard-paste"><span class="lb">Paste</span></button></div>
+    <small>Code runs inside this page with full access to it. Only paste code you wrote or trust.</small>
+   </section>
+  </aside>
+ </div>
+
+ <div class="glass tl mtl" id="tl">
+  <div class="tlbar">
+   <button id="play" class="btn ic" title="Play or pause"><svg viewBox="0 0 24 24"><path id="pp" d="M7 5v14l12-7z"/></svg></button>
+   <span id="time">0.0 / 0s</span>
+   <label class="sw mini">Loop<input type="checkbox" id="loop" checked><s></s></label>
+   <label class="sw mini">Solo scene<input type="checkbox" id="solo"><s></s></label>
+   <label class="sw mini">Guides<input type="checkbox" id="guides"><s></s></label>
+   <span class="sp"></span>
+   <button id="undo" class="btn gl sq" data-ic="undo-2" title="Undo (Ctrl+Z)" aria-label="Undo"></button>
+   <button id="redo" class="btn gl sq" data-ic="redo-2" title="Redo (Ctrl+Y)" aria-label="Redo"></button>
+   <select id="nt"></select><button id="add" class="btn y sm" data-ic="plus"><span class="lb">Add</span></button>
+   <button id="dup" class="btn gl sq" data-ic="copy" title="Duplicate (Ctrl+D)" aria-label="Duplicate"></button>
+   <button id="del" class="btn gl sq" data-ic="trash-2" title="Delete" aria-label="Delete"></button>
+   <button id="up" class="btn gl sq" data-ic="arrow-left" title="Move earlier" aria-label="Move earlier"></button>
+   <button id="dn" class="btn gl sq" data-ic="arrow-right" title="Move later" aria-label="Move later"></button>
+   <button id="tlmin" class="btn gl sq" data-ic="chevron-down" title="Collapse for a bigger preview" aria-label="Collapse"></button>
+  </div>
+  <div class="tlbody"><input type="range" id="scrub" min="0" max="100" value="0"><div id="blocks"></div></div>
+ </div>
+</section>
+<div id="toast"></div>
+<script src="/static/icons.js"></script><script src="/static/motion-engine.js"></script><script src="/static/handoff.js"></script><script src="/static/motion.js"></script>
+</body></html>
