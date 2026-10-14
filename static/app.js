@@ -97,7 +97,7 @@ $("#srt").onclick=()=>{if(!G.length)return toast("Generate captions first",1);
 /* caption list */
 function renderList(){const L=$("#list");curG=-2;
  if(!G.length){L.innerHTML='<p class="empty">No captions yet. Hit Auto-caption, or add one at the playhead.</p>';return}
- L.innerHTML=G.map((g,i)=>`<div class="crow" data-i="${i}"><div class="chd"><b>${i+1}</b><input class="ts" type="number" step=".05" min="0" value="${g.s.toFixed(2)}"><i>→</i><input class="te" type="number" step=".05" min="0" value="${g.e.toFixed(2)}"><span class="sp"></span><button data-a="split" title="Split in two">✂</button><button data-a="merge" title="Merge with next">⇣</button><button data-a="del" title="Delete">✕</button></div><textarea rows="2" spellcheck="false">${esc(gtext(g))}</textarea></div>`).join("")}
+ L.innerHTML=G.map((g,i)=>`<div class="crow" data-i="${i}"><div class="chd"><b>${i+1}</b><input class="ts" type="number" step=".05" min="0" value="${g.s.toFixed(2)}"><i>${ic('arrow-right')}</i><input class="te" type="number" step=".05" min="0" value="${g.e.toFixed(2)}"><span class="sp"></span><button data-a="split" title="Split in two">${ic('scissors')}</button><button data-a="merge" title="Merge with next">${ic('chevrons-down')}</button><button data-a="del" title="Delete">${ic('trash-2')}</button></div><textarea rows="2" spellcheck="false">${esc(gtext(g))}</textarea></div>`).join("")}
 const list=$("#list");
 list.addEventListener("focusin",e=>{if(e.target.tagName!="TEXTAREA")return;const g=G[+e.target.closest(".crow").dataset.i];if(g&&!(v.currentTime>=g.s&&v.currentTime<g.e))v.currentTime=g.s+.01});
 list.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const i=+b.closest(".crow").dataset.i,g=G[i];
@@ -205,3 +205,8 @@ $("#export").onclick=async e=>{const b=e.currentTarget;if(!G.length)return toast
   cuts:S.cutOn?S.cuts.filter(c=>c.on).map(c=>[c.s,c.e]):[]});busy(b,0);
  if(r.error)return toast("Export failed: "+r.error.slice(-140),1);
  const a=document.createElement("a");a.href=r.url;a.download="captionforge_"+S.ratio.replace(":","x")+".mp4";a.click();toast("Exported")};
+
+/* arriving from Motion Studio: pick up the exported video and load it */
+(()=>{const q=new URLSearchParams(location.search);if(q.get("from")!=="motion"||!window.Handoff)return;history.replaceState(null,"","/");
+ $("#drop span").textContent="Loading your motion video…";
+ Handoff.take().then(f=>f?load(f):($("#drop span").textContent="No motion video found. Export one in Motion Studio first.")).catch(()=>{$("#drop span").textContent="Could not read the motion video. Drop it here instead."})})();
